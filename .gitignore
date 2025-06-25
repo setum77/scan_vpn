@@ -4,7 +4,6 @@ venv/
 *.log
 *~
 *.env
-kedr.db
 lines_m.txt
-routerws.db
+routers.db
 .env
