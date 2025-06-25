@@ -1,0 +1,10 @@
+.edea/
+venv/
+*.yaml
+*.log
+*~
+*.env
+kedr.db
+lines_m.txt
+routerws.db
+.env

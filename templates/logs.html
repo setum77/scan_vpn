@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ super() }}
+<div class="logs-block">
+    <p>Размер файла: {{ size_str }}</p>
+    <p>Количество строк: {{ line_count }}</p>
+</div>
+<div class="logs-block">
+    {% for line in last_lines %}
+        <p>{{ line | e }}</p>  {# | e - экранирование HTML для безопасности #}
+    {% endfor %}
+</div>
+{% endblock %}

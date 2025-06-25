@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ super() }}
+<div class="cont-block">
+    <form method="POST" action="/update_data">
+        <button type="submit">Обновить данные</button>
+  <p></p>
+    </form>
+</div>
+<div class="logs-block">
+    <h2>Расшифровка ошибок DNS</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Ошибка</th>
+      <th>Код</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Успешно</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>HTTP статус-код<br>HTTPError </td>
+      <td>"404", "503"</td>
+    </tr>
+    <tr>
+      <td>Не удалось разрешить DNS<br>ConnectionError</td>
+      <td>-1</td>
+    </tr>
+    <tr>
+      <td>Таймаут<br>Timeout</td>
+      <td>-2</td>
+    </tr>
+    <tr>
+      <td>Общая сетевая ошибка<br>RequestException</td>
+      <td>-3</td>
+    </tr>
+    <tr>
+      <td>Недоступный URL / недоступный хост</td>
+      <td>-4</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+{% endblock %}

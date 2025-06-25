@@ -1,0 +1,260 @@
+{% extends "base.html" %} {% block content %} {{ super() }}
+<div class="content">
+  <form method="get" action="{{ url_for('index') }}">
+      <label for="date">Выберите дату:</label>
+      <input type="date" id="date" name="date" value="{{ selected_date or '' }}">
+      <button type="submit">Показать</button>
+      {% if selected_date %}
+          <a href="{{ url_for('index') }}">Показать последние 24 часа</a>
+      {% endif %}
+  </form>
+</div>
+{% for router in routers %}
+<div class="table-wrapper">
+
+<table id="table-router-{{ router.id }}">
+  <thead>
+    <tr>
+      <th colspan="{{ 2 + hours|length }}" class="router-name">{{ router.name }}</th>
+    </tr>
+    <tr>
+      <th class="th1">Имя устройства</th>
+      <th class="th2">IP</th>
+        {% for hour in hours %}
+          <th onclick="showModal('{{ hour.strftime('%Y-%m-%d %H:%M:%S') }}', {{ router.id }})"
+              class="clickable-hour">
+          {{ hour.strftime('%d.%m') }}<br>{{ hour.strftime('%H:%M') }}
+          </th>
+        {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {# Создаем список актуальных IP роутера (исключая пустые) #}
+    {% set router_ips = [router.ip1, router.ip2, router.ip3, router.dns]|reject('none') %}
+
+    {# Перебираем только те IP из словаря, которые есть у роутера #}
+    {% for ip, hour_statuses in status_dict_routers[router.id].items() if ip in router_ips %}
+      <tr>
+        <td class="router1">
+          {{ 'IP1 (L2TP/IPsec)' if ip == router.ip1 }}
+          {{ 'IP2 (SSTP)' if ip == router.ip2 }}
+          {{ router.model if ip == router.ip3 }}
+          {{ 'DNS' if ip == router.dns }}
+        </td>
+        <td class="router2">
+          {% if ip == router.dns %}
+            <a href="{{ router.dns }}" target="_blank" rel="noopener noreferrer">DNS</a>
+          {% else %}
+            <a href="{{ 'http://' + ip + '/login#goto=%2Fdashboard' if not ip.startswith('http') else ip }}" target="_blank" rel="noopener noreferrer">{{ ip }}</a>
+          {% endif %}
+        </td>
+        {% for hour in hours %}
+          {% if hour in hour_statuses %}
+            <td class="{% if hour_statuses[hour][0] == 1 %}lan-1
+                       {% elif hour_statuses[hour][0] == 0 %}lan-0
+                       {% elif hour_statuses[hour][0] == 2 %}lan-2
+                       {% endif %}">
+              {% if ip == router.dns and hour_statuses[hour][0] == 0 %}
+                {{ hour_statuses[hour][2] }}
+              {% else %}
+                  {{ hour_statuses[hour][1].strftime('%H:%M') }}
+
+
+              {% endif %}
+            </td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        {% endfor %}
+      </tr>
+
+    {% endfor %}
+    <!= Перебор устройств =>
+    {% for device in devices %}
+      {% if device.router_id == router.id or device.pritok_router_id == router.id %}
+        <tr>
+          <td class="device-name"> {{ device.name }} </td>
+          <td class="device-ip">{{ device.ip }}</td>
+          {% for hour in hours %}
+            {% if hour in status_dict_devices[device.id] %}
+              <td class="{% if status_dict_devices[device.id][hour][0] == 1 %}lan-1
+                         {% elif status_dict_devices[device.id][hour][0] == 0 %}lan-0
+                         {% elif status_dict_devices[device.id][hour][0] == 2 %}lan-2
+                         {% endif %}">
+
+                  {{ status_dict_devices[device.id][hour][1].strftime('%H:%M') }}
+              </td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endif %}
+    {% endfor %}
+
+  </tbody>
+
+</table>
+</div>
+{% endfor %}
+
+<!-- Модальное окно -->
+<div id="modal" class="modal">
+  <!-- Темный фон -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+
+  <!-- Контейнер модального окна -->
+  <div class="modal-content">
+    <span class="modal-close" id="modal-close">&times;</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+function showModal(hour, routerId) {
+    fetch(`/hourly_data?hour=${encodeURIComponent(hour)}&router_id=${encodeURIComponent(routerId)}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                alert("Ошибка: " + data.error);
+                return;
+            }
+
+            // Группировка по IP и устройствам
+            const ipEntries = {};
+            const deviceEntries = {};
+
+            data.forEach(entry => {
+                const key = entry.ip;
+
+                if (entry.device_id === null) {
+                    // Это запись о самом роутере (IP)
+                    if (!ipEntries[key]) {
+                        ipEntries[key] = {
+                            name: entry.router_name || `Роутер #${entry.router_id}`,
+                            entries: {}
+                        };
+                    }
+                    ipEntries[key].entries[entry.scan_datetime.split(' ')[1]] = entry; // HH:MM
+                } else {
+                    // Это устройство за роутером
+                    if (!deviceEntries[entry.device_id]) {
+                        deviceEntries[entry.device_id] = {
+                            name: entry.device_name || `Устройство #${entry.device_id}`,
+                            ip: entry.ip,
+                            entries: {}
+                        };
+                    }
+                    deviceEntries[entry.device_id].entries[entry.scan_datetime.split(' ')[1]] = entry;
+                }
+            });
+
+            // Получаем уникальные временные метки
+            const times = [...new Set(data.map(e => e.scan_datetime.split(' ')[1]))];
+            times.sort();
+
+            // Начинаем формировать таблицу
+            let html = `<table border="1" width="100%">
+                          <thead>
+                            <tr><th colspan="${times.length + 2}" style="text-align:center;">Детали для роутера: ${data[0]?.router_name || 'Неизвестный роутер'}, Час: ${hour}</th></tr>
+                            <tr>
+                              <th>Тип</th>
+                              <th>IP / Имя</th>`;
+
+            // times.forEach(time => {
+            //     html += `<th>${time}</th>`;
+            // });
+            html += `</tr></thead><tbody>`;
+
+            // --- Роутеры (IP) ---
+            for (const ip in ipEntries) {
+                const entryGroup = ipEntries[ip];
+
+                html += `<tr>
+                          <td>${entryGroup.name}</td>
+                          <td>${ip}</td>`;
+
+                times.forEach(time => {
+                    const entry = entryGroup.entries[time];
+                    const scanTime = entry ? entry.scan_datetime.split(' ')[1].slice(0, 5) : '—'; // HH:MM без секунд
+
+                    let cellClass = '';
+                    const status = entry ? entry.status : 2;
+                    if (status === 1) cellClass = 'lan-1';
+                    else if (status === 0) cellClass = 'lan-0';
+                    else cellClass = 'lan-2';
+
+                    html += `<td class="${cellClass}">${scanTime}</td>`;
+                });
+
+                html += `</tr>`;
+            }
+
+            // --- Устройства за роутером ---
+            for (const deviceId in deviceEntries) {
+                const entryGroup = deviceEntries[deviceId];
+
+                html += `<tr>
+                          <td>Устройство</td>
+                          <td>${entryGroup.name}${entryGroup.ip ? ` (${entryGroup.ip})` : ''}</td>`;
+
+                times.forEach(time => {
+                    const entry = entryGroup.entries[time];
+                    const scanTime = entry ? entry.scan_datetime.split(' ')[1].slice(0, 5) : '—';
+
+                    let cellClass = '';
+                    const status = entry ? entry.status : 2;
+                    if (status === 1) cellClass = 'lan-1';
+                    else if (status === 0) cellClass = 'lan-0';
+                    else cellClass = 'lan-2';
+
+                    html += `<td class="${cellClass}">${scanTime}</td>`;
+                });
+
+                html += `</tr>`;
+            }
+
+            html += `</tbody></table>`;
+
+            // Вставляем таблицу в модальное окно
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal').style.display = 'block';
+        })
+        .catch(err => {
+            console.error("Ошибка загрузки данных:", err);
+            alert("Ошибка загрузки данных");
+        });
+}
+
+// Функция закрытия модального окна
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-body').innerHTML = ''; // Очистка предыдущего содержимого
+}
+
+// Закрытие по клику на крестик или overlay
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modal');
+    const closeBtn = document.getElementById('modal-close');
+    const overlay = document.getElementById('modal-overlay');
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    // Закрытие по Esc
+    window.addEventListener('keydown', function (e) {
+        if (e.key === "Escape" && modal.style.display === 'block') {
+            closeModal();
+        }
+    });
+});
+
+</script>
+{% endblock %}
+

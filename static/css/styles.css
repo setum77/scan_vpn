@@ -1,0 +1,300 @@
+html, body {
+    width: 100%;
+    background-color: #c2d0e6;
+    font-family: "Arial" sans-serif;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+.table-wrapper {
+  width: 100%;           /* или фиксированная ширина */
+  overflow-x: auto;      /* горизонтальный скролл при переполнении */
+  position: relative;
+  max-width: 100%; /* ограничиваем по ширине */
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: auto;
+    background-color: #fff;
+    min-width: 600px; /* или подходящая минимальная ширина */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    white-space: normal; /* разрешаем перенос */
+    word-wrap: break-word; /* перенос слов */
+}
+th {
+    background-color: #3498db;
+    color: white;
+}
+/* Остальные столбцы можно задать минимальную ширину */
+th:not(.router1):not(.router2),
+td:not(.router1):not(.router2) {
+    min-width: 40px;
+}
+caption {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #34495e;
+    text-align: left;
+}
+.clickable-hour {
+  cursor: pointer;
+  background-color: #3498db;
+}
+
+.expanded-hour-details td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+  font-size: 12px;
+  transition: all 0.3s ease-in-out;
+}
+
+.expanded-column {
+    border: 1px solid #ccc;
+    padding: 5px;
+    min-width: 50px;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+.devices-table {
+    margin-top: 10px;
+}
+.no-devices {
+    font-style: italic;
+    color: #888;
+    padding: 10px;
+}
+
+.router-name {
+    background-color: #d3ca93; /* синий */
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: brown;
+
+}
+
+th1 {
+    position: sticky;
+    left: 0;
+    width: 150px;
+    min-width: 150px;
+    background-color: #3498db;
+    color: white;
+    z-index: 10;
+}
+th2 {
+    position: sticky;
+    left: 80px; /* ширина первого столбца */
+    width: 80px;
+    min-width: 80px;
+    background-color: #3498db;
+    color: white;
+    z-index: 5;
+}
+.router1 {
+    position: sticky;
+    left: 0;
+    width: 150px;
+    min-width: 150px;
+    background-color: #8272fa; /* синий */
+    color: white;
+    z-index: 10;
+    font-weight: bold;
+    font-size: 14px;
+}
+.router2 {
+    position: sticky;
+    left: 80px; /* ширина первого столбца */
+    width: 80px;
+    min-width: 80px;
+    background-color: #9486f9; /* синий */
+    color: white;
+    z-index: 5;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.device-name {
+    position: sticky;
+    left: 0;
+    width: 150px;
+    min-width: 150px;
+    background-color: #fff; /* белый */
+    z-index: 10;
+}
+.device-ip {
+    position: sticky;
+    left: 80px; /* ширина первого столбца */
+    width: 80px;
+    min-width: 80px;
+    z-index: 5;
+}
+
+.router3 {
+    background-color: #aba1fd; /* синий */
+    color: white;
+    font-weight: bold;
+}
+.lan-0 {
+    background-color: #f44336; /* красный */
+    color: white;
+    font-weight: bold;
+}
+.lan-1 {
+    background-color: #4caf50; /* зелёный */
+    color: white;
+    font-weight: bold;
+}
+.lan-2 {
+    background-color: #a7a7a7; /* серый */
+    color: white;
+    font-weight: bold;
+}
+.no-data {
+    background-color: #d5d5d5; /* светло-серый */
+    color: white;
+    font-weight: bold;
+}
+a {
+    color: #0059b2;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #CC0000;
+    text-decoration: underline;
+}
+
+.clear {clear: both;}
+
+.field15 {
+  width: 100%;
+  height: 15px;
+}
+
+ul.mainmenu {
+    list-style: none;
+    background: #3f4137;
+    height: 60px;
+    margin: 0;
+    padding: 4px;
+    color: #fdc073;
+    font-size: 20px;
+    overflow: hidden;
+}
+ul.mainmenu li {
+    display: inline;
+    float: left;
+    padding: 3px;
+    margin: 16px 50px 0 50px;
+}
+ul.mainmenu li.last {
+    float: right;
+}
+
+ul.mainmenu li a{
+    color: #fdc073;
+    text-decoration: none;
+}
+
+ul.mainmenu li a:hover {color: #FDA83D;}
+
+div.content {
+    margin: 10px;
+}
+
+.font-contact label {
+    display: inline-block;
+    min-width: 80px;
+}
+.font-contact p {margin: 10px 0 10px 0;}
+.font-contact input[type=submit], textarea {
+    font-size: 16px;
+}
+
+.flash {padding: 10px;}
+.flash.success {
+    border: 1px solid #21db56;
+    background: #AEFFC5;
+}
+.flash.error {
+    border: 1px solid #FF4343;
+    background: #FF9C9C;
+}
+
+.logs-block {
+  margin: 20px;           /* поля до блока со всех сторон */
+  padding: 3px 30px 3px 30px ;   /* поля внутри блока до содержимого */
+  background-color: white; /* белый фон */
+  font-size: 16px;        /* размер шрифта 12px */
+  width: 90%;            /* растягивается по ширине */
+  max-height: 500px;      /* максимальная высота 500px */
+  overflow-y: auto;       /* если содержимое превышает высоту — появляется вертикальный скролл */
+  box-sizing: border-box; /* учитываем padding и border в ширине и высоте */
+}
+
+.cont-block {
+  margin: 20px;           /* поля до блока со всех сторон */
+  padding: 3px 30px 3px 30px ;   /* поля внутри блока до содержимого */
+  /* background-color: white; /* белый фон */
+  font-size: 16px;        /* размер шрифта 12px */
+  width: 90%;            /* растягивается по ширине */
+  /*max-height: 500px;      /* максимальная высота 500px */
+  /*overflow-y: auto;       /* если содержимое превышает высоту — появляется вертикальный скролл */
+  box-sizing: border-box; /* учитываем padding и border в ширине и высоте */
+}
+.modal {
+  display: none; /* Скрыто по умолчанию */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5); /* Полупрозрачный фон */
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.modal-close {
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
