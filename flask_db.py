@@ -16,7 +16,7 @@ from flask_sqlalchemy import SQLAlchemy
 from collections import defaultdict
 from datetime import datetime, timedelta
 from flask_apscheduler import APScheduler
-from .clean_logs import clean_log_file
+from clean_logs import clean_log_file
 
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
