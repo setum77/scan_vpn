@@ -1,9 +1,26 @@
-.edea/
-venv/
-*.yaml
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 *.log
+
+# Virtual environments
+.venv
+venv/
+
+.env
+.env.local
+strpass
+*.jpg
+*.pyc
+.pytest_cache/
+
+
+.idea/
 *~
 *.env
 lines_m.txt
 routers.db
-.env
